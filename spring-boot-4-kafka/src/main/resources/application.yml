@@ -1,0 +1,8 @@
+app:
+  kafka:
+    topic-a: demo-topic-a
+    topic-b: demo-topic-b
+    cluster-a:
+      bootstrap-servers: localhost:9092
+    cluster-b:
+      bootstrap-servers: localhost:9093
