@@ -1,0 +1,26 @@
+spring:
+  ai:
+    anthropic:
+      api-key: test-api-key
+      model: claude-3-sonnet
+      base-url: https://api.anthropic.com
+  application:
+    name: spring-ai-mcp-test
+
+logging:
+  level:
+    com.example.ai.mcp: DEBUG
+    org.springframework.web: DEBUG
+
+server:
+  port: 0  # Random port for tests
+
+---
+spring:
+  config:
+    activate:
+      on-profile: test
+  ai:
+    anthropic:
+      api-key: test-api-key
+      enabled: false  # Disable AI for unit tests

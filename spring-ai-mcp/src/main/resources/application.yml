@@ -1,0 +1,74 @@
+spring:
+  application:
+    name: spring-ai-mcp
+  ai:
+    anthropic:
+      api-key: ${ANTHROPIC_AUTH_TOKEN}
+      base-url: https://aicoding.fortinet-us.com:7001/yvr
+      chat:
+        options:
+          model: forti-coder
+          max-tokens: 4096
+          temperature: 0.7
+
+server:
+  port: 8081
+  servlet:
+    context-path: /
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    com.example.ai.mcp: DEBUG
+    org.springframework.ai: DEBUG
+  pattern:
+    console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+
+claude:
+  code:
+    enabled: ${CLAUDE_CODE_ENABLED:true}
+    auto-sync: ${CLAUDE_CODE_AUTO_SYNC:true}
+    workspace: ${CLAUDE_CODE_WORKSPACE:./workspace}
+
+# MCP Configuration
+mcp:
+  server:
+    name: "Spring AI MCP Server"
+    version: "0.0.1-SNAPSHOT"
+    description: "Model Context Protocol server with Spring AI and Claude"
+  tools:
+    enabled: true
+    max-tools: 100
+  context:
+    max-size: 10000
+    ttl: 3600 # 1 hour in seconds
+
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+logging:
+  level:
+    root: DEBUG
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+logging:
+  level:
+    com.example.ai.mcp: INFO
+    org.springframework.ai: INFO
+    root: WARN
