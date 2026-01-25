@@ -31,6 +31,7 @@ dependencies {
     implementation "io.grpc:grpc-stub:${grpcVersion}"
     implementation "com.google.protobuf:protobuf-java:${protobufVersion}"
     implementation 'jakarta.annotation:jakarta.annotation-api:3.0.0'
+    compileOnly 'org.apache.tomcat:annotations-api:6.0.53'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
@@ -49,6 +50,9 @@ protobuf {
             task.plugins {
                 grpc {}
             }
+            task.generateDescriptorSet = true
+            task.descriptorSetOptions.includeSourceInfo = true
+            task.descriptorSetOptions.includeImports = true
         }
     }
 }
@@ -68,6 +72,10 @@ sourceSets {
 
 tasks.named('compileJava') {
     dependsOn tasks.named('generateProto')
+}
+
+tasks.named('processResources') {
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
 
 test {
