@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: ankane/pgvector:v0.5.1
+    container_name: pgvector-rag
+    environment:
+      POSTGRES_DB: rag_db
+      POSTGRES_USER: rag_user
+      POSTGRES_PASSWORD: rag_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgvector_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - /home/jackyxiang/codes/serverconf/FortiGateCloud/deployconf:/app/uploads
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rag_user -d rag_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - rag-network
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama-rag
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+      - /home/jackyxiang/codes/serverconf/FortiGateCloud/deployconf:/app/uploads
+    environment:
+      - OLLAMA_KEEP_ALIVE=24h
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:11434/api/tags || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - rag-network
+
+  ollama-pull-models:
+    image: ollama/ollama:latest
+    container_name: ollama-pull-models
+    depends_on:
+      ollama:
+        condition: service_healthy
+    volumes:
+      - ollama_data:/root/.ollama
+      - /home/jackyxiang/codes/serverconf/FortiGateCloud/deployconf:/app/uploads
+    command: >
+      sh -c "
+        sleep 10 &&
+        ollama pull nomic-embed-text &&
+        echo 'Nomic embed model pulled successfully'
+      "
+    networks:
+      - rag-network
+
+volumes:
+  pgvector_data:
+  ollama_data:
+
+networks:
+  rag-network:
+    driver: bridge
