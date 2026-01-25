@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: spring-boot-4-websocket
+
+server:
+  port: 8083
