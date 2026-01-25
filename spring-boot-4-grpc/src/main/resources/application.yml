@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: spring-boot-4-grpc
+
+server:
+  port: 8084
+
+grpc:
+  host: localhost
+  port: 9090
