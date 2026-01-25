@@ -1,0 +1,3 @@
+app:
+  greeting: "Hello from external config"
+  owner: "external-owner"

@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: spring-boot-4-external-config
+  config:
+    import: optional:file:./external/application-external.yml
+
+server:
+  port: 8082
+
+app:
+  greeting: "Hello from classpath config"
+  owner: "default-owner"
