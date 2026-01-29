@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>WebSocket Redis Broadcast Demo</title>
+    <style>
+      :root {
+        color-scheme: light;
+      }
+      body {
+        font-family: "Georgia", "Times New Roman", serif;
+        margin: 0;
+        padding: 32px;
+        background: linear-gradient(135deg, #f3efe6 0%, #f8f6f0 50%, #efe7d8 100%);
+        color: #2e2a24;
+      }
+      .wrap {
+        max-width: 720px;
+        margin: 0 auto;
+        background: rgba(255, 255, 255, 0.78);
+        border: 1px solid #d8cdb9;
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 10px 30px rgba(40, 32, 19, 0.12);
+      }
+      h1 {
+        margin: 0 0 12px;
+        font-size: 28px;
+        letter-spacing: 0.5px;
+      }
+      .status {
+        font-size: 14px;
+        margin-bottom: 16px;
+      }
+      .status span {
+        font-weight: bold;
+      }
+      .row {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 16px;
+        flex-wrap: wrap;
+      }
+      input[type="text"] {
+        flex: 1 1 320px;
+        padding: 10px 12px;
+        border-radius: 8px;
+        border: 1px solid #c7b59b;
+        font-size: 16px;
+      }
+      button {
+        padding: 10px 16px;
+        border-radius: 8px;
+        border: 1px solid #8b6f4d;
+        background: #a98355;
+        color: #fff;
+        font-weight: bold;
+        cursor: pointer;
+      }
+      button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+      #log {
+        background: #fff8ec;
+        border: 1px dashed #c2ad8f;
+        border-radius: 8px;
+        padding: 12px;
+        min-height: 160px;
+        white-space: pre-wrap;
+        font-family: "Courier New", monospace;
+        font-size: 14px;
+      }
+      @media (max-width: 600px) {
+        body {
+          padding: 16px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <h1>WebSocket Redis Broadcast Demo</h1>
+      <div class="status">Connection: <span id="status">disconnected</span></div>
+      <div class="row">
+        <input id="message" type="text" placeholder="Type a message..." />
+        <button id="connect">Connect</button>
+        <button id="send" disabled>Send</button>
+        <button id="disconnect" disabled>Disconnect</button>
+      </div>
+      <div id="log"></div>
+    </div>
+
+    <script>
+      const statusEl = document.getElementById("status");
+      const logEl = document.getElementById("log");
+      const messageEl = document.getElementById("message");
+      const connectBtn = document.getElementById("connect");
+      const sendBtn = document.getElementById("send");
+      const disconnectBtn = document.getElementById("disconnect");
+
+      let socket;
+
+      const setStatus = (text, connected) => {
+        statusEl.textContent = text;
+        sendBtn.disabled = !connected;
+        disconnectBtn.disabled = !connected;
+        connectBtn.disabled = connected;
+      };
+
+      const log = (line) => {
+        logEl.textContent += `${line}\n`;
+        logEl.scrollTop = logEl.scrollHeight;
+      };
+
+      connectBtn.addEventListener("click", () => {
+        socket = new WebSocket(`ws://${location.host}/ws/echo`);
+        socket.addEventListener("open", () => {
+          setStatus("connected", true);
+          log("[open] connected");
+        });
+        socket.addEventListener("message", (event) => {
+          log(`[message] ${event.data}`);
+        });
+        socket.addEventListener("close", () => {
+          setStatus("disconnected", false);
+          log("[close] disconnected");
+        });
+        socket.addEventListener("error", () => {
+          log("[error] socket error");
+        });
+      });
+
+      sendBtn.addEventListener("click", () => {
+        if (!socket || socket.readyState !== WebSocket.OPEN) {
+          log("[warn] socket not open");
+          return;
+        }
+        const payload = messageEl.value.trim();
+        if (!payload) {
+          return;
+        }
+        socket.send(payload);
+        messageEl.value = "";
+      });
+
+      disconnectBtn.addEventListener("click", () => {
+        if (socket) {
+          socket.close();
+        }
+      });
+    </script>
+  </body>
+</html>

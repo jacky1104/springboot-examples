@@ -10,9 +10,15 @@ import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry
 @EnableWebSocket
 public class WebSocketConfig implements WebSocketConfigurer {
 
+    private final EchoWebSocketHandler echoWebSocketHandler;
+
+    public WebSocketConfig(EchoWebSocketHandler echoWebSocketHandler) {
+        this.echoWebSocketHandler = echoWebSocketHandler;
+    }
+
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        registry.addHandler(new EchoWebSocketHandler(), "/ws/echo")
+        registry.addHandler(echoWebSocketHandler, "/ws/echo")
                 .setAllowedOrigins("*");
     }
 }
