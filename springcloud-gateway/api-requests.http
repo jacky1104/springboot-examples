@@ -1,0 +1,6 @@
+### GET request to forticonverter endpoint (without trailing slash)
+GET http://localhost:8080/api/v1/public/forticonverter
+Accept: application/json
+Authorization: Bearer {{jwtToken}}
+
+###
